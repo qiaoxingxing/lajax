@@ -30,5 +30,8 @@
         "ajax"
     ],
     "author": "Sky.Sun",
-    "license": "MIT"
+    "license": "MIT",
+    "publishConfig": {
+        "registry": "http://nexus.ccp.sjgs/repository/npm-hosted/"
+    }
 }

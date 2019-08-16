@@ -104,13 +104,18 @@ class Lajax {
         // xhr 原生 send 方法
         this.xhrSend = XMLHttpRequest.prototype.send;
 
-        //qxx 拦截器
-        if(config.beforeRequest &&  typeof config.beforeRequest === "function") {
+        //qxx xhr拦截器
+        if (config.beforeRequest && typeof config.beforeRequest === "function") {
             this.beforeRequest = config.beforeRequest;
         } else {
-            this.beforeRequest = function(xhr){};
+            this.beforeRequest = function (xhr) { };
         }
-        
+        //qxx 转换日志的args, args的类型是object[]
+        if(config.transformArgs && typeof config.transformArgs === "function") {
+            this.transformArgs = config.transformArgs;
+        } else {
+            this.transformArgs = function(args){return args;}; 
+        }
         // 初始化
         this._init();
     }
@@ -426,10 +431,10 @@ class Lajax {
 
             try {
                 this.xhr = new XMLHttpRequest();
-                //qxx 拦截器;
-                this.beforeRequest(this.xhr);
                 this.xhrOpen.call(this.xhr, 'POST', this.url, true);
                 this.xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+                //qxx 拦截器;
+                this.beforeRequest(this.xhr);
                 this.xhrSend.call(this.xhr, JSON.stringify(this.queue));
                 this.xhr.onreadystatechange = () => {
                     if (this.xhr.readyState === XMLHttpRequest.DONE) {
@@ -456,6 +461,7 @@ class Lajax {
                     }
                 };
             } catch (err) {
+                console.log(err)
                 this._printConsole(null, Lajax.levelEnum.error, `发送日志请求失败！配置的接口地址：${this.url}`);
                 this._checkErrorReq();
                 this.xhr = null;
@@ -574,6 +580,7 @@ class Lajax {
      */
     _pushToQueue(time, level, ...args) {
         args.unshift(`{${this.reqId}}`);
+        args = this.transformArgs(args);
         this.queue.push({
             time: this._getDateTimeString(time),
             level,
