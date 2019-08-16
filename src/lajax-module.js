@@ -114,7 +114,7 @@ class Lajax {
         if(config.transformArgs && typeof config.transformArgs === "function") {
             this.transformArgs = config.transformArgs;
         } else {
-            this.transformArgs = function(args){return args;}; 
+            this.transformArgs = function(args,level,time){return args;}; 
         }
         // 初始化
         this._init();
@@ -580,7 +580,7 @@ class Lajax {
      */
     _pushToQueue(time, level, ...args) {
         args.unshift(`{${this.reqId}}`);
-        args = this.transformArgs(args);
+        args = this.transformArgs(args,level,time);
         this.queue.push({
             time: this._getDateTimeString(time),
             level,
