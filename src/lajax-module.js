@@ -104,6 +104,13 @@ class Lajax {
         // xhr 原生 send 方法
         this.xhrSend = XMLHttpRequest.prototype.send;
 
+        //qxx 拦截器
+        if(config.beforeRequest &&  typeof config.beforeRequest === "function") {
+            this.beforeRequest = config.beforeRequest;
+        } else {
+            this.beforeRequest = function(xhr){};
+        }
+        
         // 初始化
         this._init();
     }
@@ -419,6 +426,8 @@ class Lajax {
 
             try {
                 this.xhr = new XMLHttpRequest();
+                //qxx 拦截器;
+                this.beforeRequest(this.xhr);
                 this.xhrOpen.call(this.xhr, 'POST', this.url, true);
                 this.xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
                 this.xhrSend.call(this.xhr, JSON.stringify(this.queue));
